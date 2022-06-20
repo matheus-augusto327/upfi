@@ -54,13 +54,11 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
 
   const queryClient = useQueryClient();
   const mutation = useMutation(async (image: ImageProps) => {
-    const response = await api.post('api/images', {
-      image
-    })
+    const response = await api.post('api/images', image)
     return response.data.post
   }, {
     onSuccess: () => {
-      queryClient.invalidateQueries('images')
+      queryClient.invalidateQueries()
     }
   }
   );
@@ -125,19 +123,19 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           setError={setError}
           trigger={trigger}
           error={errors.image}
-          {...register('image')}
+          {...register('image', formValidations.image)}
         />
 
         <TextInput
           placeholder="Título da imagem..."
           error={errors.title}
-          {...register('title')}
+          {...register('title', formValidations.title)}
         />
 
         <TextInput
           placeholder="Descrição da imagem..."
           error={errors.description}
-          {...register('description')}
+          {...register('description', formValidations.description)}
         />
       </Stack>
 

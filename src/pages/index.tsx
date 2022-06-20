@@ -8,7 +8,33 @@ import { api } from '../services/api';
 import { Loading } from '../components/Loading';
 import { Error } from '../components/Error';
 
+type FetchImagesParam = {
+  pageParam?: string;
+}
+
+interface Card {
+  title: string;
+  description: string;
+  url: string;
+  ts: number;
+  id: string;
+}
+
+type FetchImagesResponse = {
+  data: Card[];
+  after: string | null;
+}
+
 export default function Home(): JSX.Element {
+  async function fetchImages({ pageParam = null }: FetchImagesParam): Promise<FetchImagesResponse> {
+    const { data } = await api.get('/api/images', {
+      params: {
+        after: pageParam
+      }
+    })
+    return data
+  }
+
   const {
     data,
     isLoading,
@@ -16,20 +42,24 @@ export default function Home(): JSX.Element {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery(
-    'images',
-    // TODO AXIOS REQUEST WITH PARAM
-    
-    // TODO GET AND RETURN NEXT PAGE PARAM
-  );
+  } = useInfiniteQuery('images', fetchImages, {
+    getNextPageParam: lastPage => lastPage.after ?? null
+  });
 
   const formattedData = useMemo(() => {
-    // TODO FORMAT AND FLAT DATA ARRAY
+    const newFormattedData = data?.pages.map(page => page.data).flat()
+    return newFormattedData
   }, [data]);
 
-  // TODO RENDER LOADING SCREEN
+  console.log(formattedData)
 
-  // TODO RENDER ERROR SCREEN
+  if (isLoading) {
+    return <Loading />
+  }
+
+  if (isError) {
+    return <Error />
+  }
 
   return (
     <>
